@@ -6,11 +6,16 @@ class RegistrationModel(BaseModel):
     password: str = Field(min_length=8)
 
     @validator("login")
-    def validate_login(cls, login: str) -> None:
+    def validate_login(cls, login: str) -> str:
         assert " " not in login, "No spaces allowed in login"
         return login
 
 
-class UserModel(BaseModel):
+class BaseUserModel(BaseModel):
     id: str
     login: str
+
+
+class UserModel(BaseUserModel):
+    followers: int
+    follows: int

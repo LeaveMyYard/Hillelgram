@@ -24,7 +24,9 @@ class UserCRUD:
         finally:
             cur.close()
 
-    def authenticate(self, conn: sqlite3.Connection, auth_data: Authorization) -> None:
+    def authenticate(
+        self, conn: sqlite3.Connection, auth_data: Authorization
+    ) -> UserModel:
         cur = conn.cursor()
         try:
             cur.execute(
@@ -39,6 +41,10 @@ class UserCRUD:
 
             if not passwords.passwords_equal(auth_data.password, password_hashed):
                 raise AuthError("Password is incorrect")
+
+            assert auth_data.username is not None
+
+            return self.get(conn, auth_data.username)
         finally:
             cur.close()
 
@@ -46,12 +52,25 @@ class UserCRUD:
         cur = conn.cursor()
 
         try:
-            cur.execute("SELECT id, login FROM User WHERE login=?", (login,))
+            cur.execute(
+                "SELECT User.id, User.login, "
+                " COUNT(DISTINCT f1.follower), COUNT(DISTINCT f2.follows)"
+                "FROM User "
+                "LEFT JOIN Follow AS f1 ON f1.follows = User.id "
+                "LEFT JOIN Follow AS f2 ON f2.follower = User.id "
+                "WHERE User.login=?",
+                (login,),
+            )
             row = cur.fetchone()
 
             if row is None:
                 return None
 
-            return UserModel(id=row[0], login=row[1])
+            id, login, followers, follows = row
+
+            if id is None:
+                return None
+
+            return UserModel(id=id, login=login, followers=followers, follows=follows)
         finally:
             cur.close()
