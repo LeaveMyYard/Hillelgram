@@ -9,9 +9,9 @@ api_blueprint.register_blueprint(user_blueprint)
 api_blueprint.register_blueprint(posts_blueprint)
 
 
-# @api_blueprint.errorhandler(ValidationError)
-# def register_validation_error(error: ValidationError):
-#     return jsonify({"error": type(error).__name__, "info": error.errors()}), 422
+@api_blueprint.errorhandler(ValidationError)
+def register_validation_error(error: ValidationError):
+    return jsonify({"error": type(error).__name__, "info": error.errors()}), 422
 
 
 @api_blueprint.errorhandler(HTTPException)

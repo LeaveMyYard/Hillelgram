@@ -1,4 +1,3 @@
-from core import db
 from flask.testing import FlaskClient
 from sqlite3 import Connection
 

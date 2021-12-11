@@ -5,6 +5,7 @@ from typing import Iterator
 from sqlite3 import Connection
 import pytest
 from shutil import copyfile
+import os
 
 
 @pytest.fixture
@@ -17,7 +18,7 @@ TEST_DB_FILE = "data/test.sqlite3"
 TEST_DB_CURRENT_FILE = "data/current_test.sqlite3"
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(autouse=True)
 def conn() -> Iterator[Connection]:
     initial_db = db.DB_FILE
 
@@ -27,4 +28,5 @@ def conn() -> Iterator[Connection]:
     with db.get_connection() as conn:
         yield conn
 
+    os.remove(TEST_DB_CURRENT_FILE)
     db.DB_FILE = initial_db
